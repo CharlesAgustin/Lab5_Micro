@@ -1,5 +1,5 @@
-#ifndef SWITCH.H
-#define SWITCH .H
+#ifndef SWITCH_H
+#define SWITCH_H
 #include <avr/io.h>
 void initswitch();
 
