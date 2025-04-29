@@ -35,6 +35,11 @@ int main()
   sei();
   int16_t x = 0, y = 0, z = 0;            // variable to store the accelerometer reading
   double x_acc = 0, y_acc = 0, z_acc = 0; // variable to count angle dgeree
+
+  // variable to smooth the reading
+  static double smooth_roll = 0;
+  static double smooth_pitch = 0;
+
   while (1)
   {
     if (current_state != wait_pressed) // make sure button is debounced
@@ -72,13 +77,17 @@ int main()
     double roll = atan2(y_acc, sqrt(x_acc * x_acc + z_acc * z_acc));         // count the degree respect to y
     double pitch = atan2(x_acc, sqrt(y_acc * y_acc + z_acc * z_acc)) - 0.12; // count the degree respect to x
 
+    // low pass filter to counter sudden spike
+    smooth_roll = 0.9 * smooth_roll + 0.1 * roll;
+    smooth_pitch = 0.9 * smooth_pitch + 0.1 * pitch;
+
     // printing value of degree
     Serial.print("roll: ");
     Serial.println(roll);
     Serial.print("pitch: ");
     Serial.println(pitch);
 
-    if (roll > 0.45 || roll < -0.45 || pitch > 0.45 || pitch < -0.45) // check  if the degree is more than 45 degree or less than -45 degree (45 degree to the other side)
+    if (smooth_roll > 0.45 || smooth_roll < -0.45 || smooth_pitch > 0.45 || smooth_pitch < -0.45) // check  if the degree is more than 45 degree or less than -45 degree (45 degree to the other side)
     {
       initialLED = SAD; // make the 8x8 LED matrix to show SAD face
       Buzzer = true;    // change the buzzer state to true (starting the chirping buzzer)
